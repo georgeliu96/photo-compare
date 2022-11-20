@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react"
 import { createWorker } from "tesseract.js"
 import { StringDiff } from "react-string-diff"
+import { Comment } from "react-loader-spinner"
 import "./App.css"
 
 function App() {
@@ -8,6 +9,8 @@ function App() {
 	const [ocr2, setOcr2] = useState("")
 	const [imageData1, setImageData1] = useState(null)
 	const [imageData2, setImageData2] = useState(null)
+	const [isLoading1, setIsLoading1] = useState(false)
+	const [isLoading2, setIsLoading2] = useState(false)
 
 	const worker1 = createWorker({
 		logger: (m) => {
@@ -22,20 +25,22 @@ function App() {
 	})
 
 	const convertImageToText = useCallback(
-		async (worker, imageData, setOcr) => {
+		async (worker, imageData, setOcr, setIsLoading) => {
 			if (!imageData) return
+			setIsLoading(true)
 			await worker.load()
 			await worker.loadLanguage("eng+fra+spa")
 			await worker.initialize("eng+fra+spa")
 			const {
 				data: { text },
 			} = await worker.recognize(imageData)
+			setIsLoading(false)
 			setOcr(text)
 		},
 		[]
 	)
 
-	const handleImageChange = (worker, setImageData, setOcr) => (e) => {
+	const handleImageChange = (worker, setImageData, setOcr, setIsLoading) => (e) => {
 		const file = e.target.files[0]
 		if (!file) return
 		const reader = new FileReader()
@@ -43,7 +48,7 @@ function App() {
 			const imageDataUri = reader.result
 			setImageData(imageDataUri)
 
-			convertImageToText(worker, imageDataUri, setOcr)
+			convertImageToText(worker, imageDataUri, setOcr, setIsLoading)
 		}
 		reader.readAsDataURL(file)
 	}
@@ -90,11 +95,22 @@ function App() {
 						onChange={handleImageChange(
 							worker1,
 							setImageData1,
-							setOcr1
+							setOcr1,
+							setIsLoading1
 						)}
 						accept='image/*'
 					/>
 					<img src={imageData1} alt='' srcset='' />
+					{isLoading1 ? <Comment
+  visible={true}
+  height="80"
+  width="80"
+  ariaLabel="comment-loading"
+  wrapperStyle={{}}
+  wrapperClass="comment-wrapper"
+  color="#fff"
+  backgroundColor="#000066"
+/> : null}
 					{arr1.map((el, i) => (
 			<div key={i} className='textLine'>
 				{el}
@@ -110,11 +126,22 @@ function App() {
 						onChange={handleImageChange(
 							worker2,
 							setImageData2,
-							setOcr2
+							setOcr2,
+							setIsLoading2
 						)}
 						accept='image/*'
 					/>
 					<img src={imageData2} alt='' srcset='' />
+					{isLoading2 ? <Comment
+  visible={true}
+  height="80"
+  width="80"
+  ariaLabel="comment-loading"
+  wrapperStyle={{}}
+  wrapperClass="comment-wrapper"
+  color="#fff"
+  backgroundColor="#000066"
+/> : null}
 					{arr2.map((el, i) => (
 			<div key={i} className='textLine'>
 				{el}
