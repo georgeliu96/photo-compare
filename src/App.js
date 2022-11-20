@@ -59,6 +59,8 @@ function App() {
 		const arr = []
 		let breakpoint
 		for (let i = 0; i < str.length; i++) {
+			if (str.slice(i, i+3) === "FR:") console.log(str.slice(i, i+3))
+
 			if (str.slice(i, i + 3) === "ES:") {
 				arr.push(str.slice(0, i))
 				breakpoint = i
@@ -69,12 +71,12 @@ function App() {
 				break
 			}
 		}
-		return arr.map((el, i) => (
-			<div key={i} className='textLine'>
-				{el}
-			</div>
-		))
+
+		return arr
 	}
+
+	const arr1 = addBreaks(ocr1)
+	const arr2 = addBreaks(ocr2)
 
 	return (
 		<div className='App'>
@@ -93,7 +95,11 @@ function App() {
 						accept='image/*'
 					/>
 					<img src={imageData1} alt='' srcset='' />
-					{addBreaks(ocr1)}
+					{arr1.map((el, i) => (
+			<div key={i} className='textLine'>
+				{el}
+			</div>
+		))}
 				</div>
 				<div>
 					<h2>Choose an Image</h2>
@@ -109,11 +115,17 @@ function App() {
 						accept='image/*'
 					/>
 					<img src={imageData2} alt='' srcset='' />
-					{addBreaks(ocr2)}
+					{arr2.map((el, i) => (
+			<div key={i} className='textLine'>
+				{el}
+			</div>
+		))}
 				</div>
 			</div>
 			<div>
-				<StringDiff oldValue={ocr2} newValue={ocr1} />
+				{
+					arr1.map((el, i) => <div className="textLine" key={i}><StringDiff oldValue={arr2[i] ?? ''} newValue={el ?? ''}/></div>) 
+				}
 			</div>
 			{ocr1 || ocr2 ? (
 				<div className='button'>
