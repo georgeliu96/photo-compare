@@ -77,6 +77,8 @@ function App() {
 			}
 		}
 
+		if (arr.length < 3) return [str]
+
 		return arr
 	}
 
